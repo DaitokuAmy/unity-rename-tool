@@ -1,5 +1,5 @@
 # unity-rename-tool
-<img width="613" alt="image" src="https://user-images.githubusercontent.com/114905982/221765990-69a9e6ad-4edf-4c4e-a30f-76866af407a2.png">
+<img width="613" alt="image" src="https://user-images.githubusercontent.com/114905982/221768604-568b458c-884c-4b59-ba61-2d864860c99d.png">
 
 ## 概要
 #### 特徴
