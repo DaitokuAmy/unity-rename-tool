@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEditor;
@@ -9,9 +10,22 @@ namespace UnityRenameTool.Editor {
     /// RenameToolのメインウィンドウ
     /// </summary>
     public class RenameToolWindow : EditorWindow {
+        private const float PreviewHeight = 150.0f; 
+        
+        /// <summary>
+        /// プレビュー用のテキスト情報
+        /// </summary>
+        private struct PreviewInfo {
+            public string oldText;
+            public string newText;
+        }
+        
         private UnityEditor.Editor _settingsEditor;
         private StringBuilder _workBuilder = new StringBuilder();
-        private Vector2 _scroll;
+        private Vector2 _settingsScroll;
+        private Vector2 _previewScroll;
+        private bool _dirtyPreview;
+        private List<PreviewInfo> _previewInfos = new List<PreviewInfo>();
 
         /// <summary>
         /// Windowを開く処理
@@ -29,11 +43,56 @@ namespace UnityRenameTool.Editor {
             settings.hideFlags = HideFlags.HideAndDontSave & ~HideFlags.NotEditable;
             UnityEditor.Editor.CreateCachedEditor(settings, null, ref _settingsEditor);
 
-            using (var scope = new EditorGUILayout.ScrollViewScope(_scroll)) {
+            using (var scope = new EditorGUILayout.ScrollViewScope(_settingsScroll, "Box")) {
                 _settingsEditor.OnInspectorGUI();
-                _scroll = scope.scrollPosition;
+                _settingsScroll = scope.scrollPosition;
+            }
+            
+            // Preview情報の更新
+            if (_dirtyPreview) {
+                var objects = Selection.objects;
+                _previewInfos.Clear();
+                for (var i = 0; i < objects.Length; i++) {
+                    var obj = objects[i];
+                    var gameObject = obj as GameObject;
+                    
+                    // Hierarchyの変換
+                    if (gameObject != null && !AssetDatabase.Contains(gameObject)) {
+                        _workBuilder.Clear();
+                        _workBuilder.Append(gameObject.name);
+                        settings.Modify(_workBuilder, i);
+                        _previewInfos.Add(new PreviewInfo {
+                            oldText = gameObject.name,
+                            newText = _workBuilder.ToString()
+                        });
+                    }
+                    // ProjectAssetの変換
+                    else if (obj != null) {
+                        var path = AssetDatabase.GetAssetPath(obj);
+                        var fileName = Path.GetFileNameWithoutExtension(path);
+                        _workBuilder.Clear();
+                        _workBuilder.Append(fileName);
+                        settings.Modify(_workBuilder, i);
+                        _previewInfos.Add(new PreviewInfo {
+                            oldText = fileName,
+                            newText = _workBuilder.ToString()
+                        });
+                    }
+                }
+                
+                _dirtyPreview = true;
+            }
+            
+            // PreviewWindow描画
+            using (var scope = new EditorGUILayout.ScrollViewScope(_previewScroll, "Box", GUILayout.Height(PreviewHeight))) {
+                for (var i = 0; i < _previewInfos.Count; i++) {
+                    var info = _previewInfos[i];
+                    EditorGUILayout.LabelField(info.oldText, info.newText);
+                }
+                _previewScroll = scope.scrollPosition;
             }
 
+            // リネーム処理
             if (GUILayout.Button("Rename")) {
                 var objects = Selection.objects;
                 for (var i = 0; i < objects.Length; i++) {
@@ -81,6 +140,21 @@ namespace UnityRenameTool.Editor {
                 AssetDatabase.Refresh();
                 AssetDatabase.SaveAssets();
             }
+        }
+
+        /// <summary>
+        /// アクティブ時の処理
+        /// </summary>
+        private void OnEnable() {
+            _dirtyPreview = true;
+        }
+
+        /// <summary>
+        /// 選択内容に変更があった際の通知
+        /// </summary>
+        private void OnSelectionChange() {
+            _dirtyPreview = true;
+            Repaint();
         }
 
         /// <summary>
