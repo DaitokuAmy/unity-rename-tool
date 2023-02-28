@@ -13,7 +13,7 @@ namespace UnityRenameTool.Editor {
         [Tooltip("アクティブ状態")]
         public bool active;
         [Tooltip("フォーマット")]
-        public string format = @"_{0}";
+        public string format = @"_{0:000}";
         [Tooltip("開始番号")]
         public int startNumber = 0;
 

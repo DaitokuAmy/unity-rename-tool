@@ -11,6 +11,7 @@ namespace UnityRenameTool.Editor {
     public class RenameToolWindow : EditorWindow {
         private UnityEditor.Editor _settingsEditor;
         private StringBuilder _workBuilder = new StringBuilder();
+        private Vector2 _scroll;
 
         /// <summary>
         /// Windowを開く処理
@@ -27,7 +28,11 @@ namespace UnityRenameTool.Editor {
             var settings = RenameToolSettings.instance;
             settings.hideFlags = HideFlags.HideAndDontSave & ~HideFlags.NotEditable;
             UnityEditor.Editor.CreateCachedEditor(settings, null, ref _settingsEditor);
-            _settingsEditor.OnInspectorGUI();
+
+            using (var scope = new EditorGUILayout.ScrollViewScope(_scroll)) {
+                _settingsEditor.OnInspectorGUI();
+                _scroll = scope.scrollPosition;
+            }
 
             if (GUILayout.Button("Rename")) {
                 var objects = Selection.objects;

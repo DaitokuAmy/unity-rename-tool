@@ -8,19 +8,19 @@ namespace UnityRenameTool.Editor {
     /// </summary>
     [FilePath("UnityRenameTool/Settings.asset", FilePathAttribute.Location.PreferencesFolder)]
     public class RenameToolSettings : ScriptableSingleton<RenameToolSettings> {
-        [Tooltip("文字列トリミング設定")]
+        [Tooltip("文字列トリミング設定"), RenameModifier("[startIndex:0, length:4]hoge_000 -> hoge")]
         public TrimmingRenameModifier trimming;
-        [Tooltip("ベース文字列設定")]
+        [Tooltip("ベース文字列設定"), RenameModifier]
         public BaseNameRenameModifier baseName;
-        [Tooltip("大文字小文字設定")]
+        [Tooltip("大文字小文字設定"), RenameModifier("[case:Upper]hoge -> HOGE, [case:Lower]HOGE -> hoge")]
         public UpperLowerCaseRenameModifier upperLowerCase;
-        [Tooltip("Replace設定")]
+        [Tooltip("Replace設定"), RenameModifier]
         public ReplaceRenameModifier replace;
-        [Tooltip("番号設定")]
+        [Tooltip("番号設定"), RenameModifier("[format:_{0:000}]hoge -> hoge_001")]
         public NumberingRenameModifier numbering;
-        [Tooltip("Prefix編集用設定")]
+        [Tooltip("Prefix編集用設定"), RenameModifier("[prefix:tex_]hoge -> tex_hoge")]
         public PrefixRenameModifier prefix;
-        [Tooltip("Suffix編集用設定")]
+        [Tooltip("Suffix編集用設定"), RenameModifier("[suffix:_normal]hoge -> hoge_normal")]
         public SuffixRenameModifier suffix;
 
         private IRenameModifier[] _modifiers;

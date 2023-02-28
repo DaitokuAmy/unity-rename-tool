@@ -1,18 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class RenameModifierAttribute : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+namespace UnityRenameTool.Editor {
+    /// <summary>
+    /// RenameModifierEditor拡張用のAttribute
+    /// </summary>
+    public class RenameModifierAttribute : PropertyAttribute {
+        public string HelpMessage { get; }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public RenameModifierAttribute(string helpMessage = "") {
+            HelpMessage = helpMessage;
+        }
     }
 }
