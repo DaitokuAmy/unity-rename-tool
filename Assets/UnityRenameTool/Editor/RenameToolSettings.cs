@@ -8,6 +8,8 @@ namespace UnityRenameTool.Editor {
     /// </summary>
     [FilePath("UnityRenameTool/Settings.asset", FilePathAttribute.Location.PreferencesFolder)]
     public class RenameToolSettings : ScriptableSingleton<RenameToolSettings> {
+        [Tooltip("文字列トリミング設定")]
+        public TrimmingRenameModifier trimming;
         [Tooltip("ベース文字列設定")]
         public BaseNameRenameModifier baseName;
         [Tooltip("大文字小文字設定")]
@@ -26,6 +28,7 @@ namespace UnityRenameTool.Editor {
             get {
                 if (_modifiers == null) {
                     _modifiers = new IRenameModifier[] {
+                        trimming,
                         baseName,
                         upperLowerCase,
                         replace,

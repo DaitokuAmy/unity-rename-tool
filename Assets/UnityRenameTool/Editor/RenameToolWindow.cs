@@ -58,7 +58,12 @@ namespace UnityRenameTool.Editor {
                             _workBuilder.Clear();
                             _workBuilder.Append(fileName);
                             settings.Modify(_workBuilder, i);
-                            RenameAsset(path, _workBuilder.ToString());
+                            var newFileName = _workBuilder.ToString();
+                            RenameAsset(path, newFileName);
+                            
+                            // Asset側の名前も更新
+                            obj.name = newFileName;
+                            EditorUtility.SetDirty(obj);
                         }
                         catch (Exception exception) {
                             Debug.LogError($"Rename failed. [{fileName}]");
