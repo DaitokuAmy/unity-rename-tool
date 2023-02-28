@@ -1,5 +1,6 @@
 # unity-rename-tool
-![image](https://user-images.githubusercontent.com/6957962/221604648-57cb9eb1-b4e7-46df-b56f-1c785a2b163a.png)
+<img width="613" alt="image" src="https://user-images.githubusercontent.com/114905982/221765990-69a9e6ad-4edf-4c4e-a30f-76866af407a2.png">
+
 ## 概要
 #### 特徴
 * 大量のアセットを同時に変換しても高速なリネームツール
