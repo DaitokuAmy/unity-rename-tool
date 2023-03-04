@@ -21,7 +21,8 @@ namespace UnityRenameTool.Editor {
         }
         
         private UnityEditor.Editor _settingsEditor;
-        private StringBuilder _workBuilder = new StringBuilder();
+        private StringBuilder _workBuilder1 = new StringBuilder();
+        private StringBuilder _workBuilder2 = new StringBuilder();
         private Vector2 _settingsScroll;
         private Vector2 _previewScroll;
         private bool _dirtyPreview;
@@ -50,36 +51,7 @@ namespace UnityRenameTool.Editor {
             
             // Preview情報の更新
             if (_dirtyPreview) {
-                var objects = Selection.objects;
-                _previewInfos.Clear();
-                for (var i = 0; i < objects.Length; i++) {
-                    var obj = objects[i];
-                    var gameObject = obj as GameObject;
-                    
-                    // Hierarchyの変換
-                    if (gameObject != null && !AssetDatabase.Contains(gameObject)) {
-                        _workBuilder.Clear();
-                        _workBuilder.Append(gameObject.name);
-                        settings.Modify(_workBuilder, i);
-                        _previewInfos.Add(new PreviewInfo {
-                            oldText = gameObject.name,
-                            newText = _workBuilder.ToString()
-                        });
-                    }
-                    // ProjectAssetの変換
-                    else if (obj != null) {
-                        var path = AssetDatabase.GetAssetPath(obj);
-                        var fileName = Path.GetFileNameWithoutExtension(path);
-                        _workBuilder.Clear();
-                        _workBuilder.Append(fileName);
-                        settings.Modify(_workBuilder, i);
-                        _previewInfos.Add(new PreviewInfo {
-                            oldText = fileName,
-                            newText = _workBuilder.ToString()
-                        });
-                    }
-                }
-                
+                RenameAssets(settings, true);
                 _dirtyPreview = true;
             }
             
@@ -94,49 +66,7 @@ namespace UnityRenameTool.Editor {
 
             // リネーム処理
             if (GUILayout.Button("Rename")) {
-                var objects = Selection.objects;
-                for (var i = 0; i < objects.Length; i++) {
-                    var obj = objects[i];
-                    var gameObject = obj as GameObject;
-                    
-                    // Hierarchyの変換
-                    if (gameObject != null && !AssetDatabase.Contains(gameObject)) {
-                        try {
-                            EditorUtility.DisplayProgressBar("Rename", gameObject.name, i / (float)objects.Length);
-                            _workBuilder.Clear();
-                            _workBuilder.Append(gameObject.name);
-                            settings.Modify(_workBuilder, i);
-                            gameObject.name = _workBuilder.ToString();
-                        }
-                        catch (Exception exception) {
-                            Debug.LogError($"Rename failed. [{gameObject.name}]");
-                            Debug.LogException(exception);
-                        }
-                    }
-                    // ProjectAssetの変換
-                    else if (obj != null) {
-                        var path = AssetDatabase.GetAssetPath(obj);
-                        var fileName = Path.GetFileNameWithoutExtension(path);
-                        try {
-                            EditorUtility.DisplayProgressBar("Rename", path, i / (float)objects.Length);
-                            _workBuilder.Clear();
-                            _workBuilder.Append(fileName);
-                            settings.Modify(_workBuilder, i);
-                            var newFileName = _workBuilder.ToString();
-                            RenameAsset(path, newFileName);
-                            
-                            // Asset側の名前も更新
-                            obj.name = newFileName;
-                            EditorUtility.SetDirty(obj);
-                        }
-                        catch (Exception exception) {
-                            Debug.LogError($"Rename failed. [{fileName}]");
-                            Debug.LogException(exception);
-                        }
-                    }
-                }
-
-                EditorUtility.ClearProgressBar();
+                RenameAssets(settings);
                 AssetDatabase.Refresh();
                 AssetDatabase.SaveAssets();
             }
@@ -158,38 +88,120 @@ namespace UnityRenameTool.Editor {
         }
 
         /// <summary>
+        /// 選択中のアセットをリネーム
+        /// </summary>
+        private void RenameAssets(RenameToolSettings settings, bool previewMode = false) {
+            if (previewMode) {
+                _previewInfos.Clear();
+            }
+            
+            var objects = Selection.objects;
+            for (var i = 0; i < objects.Length; i++) {
+                var obj = objects[i];
+                var gameObject = obj as GameObject;
+                
+                // Hierarchyの変換
+                if (gameObject != null && !AssetDatabase.Contains(gameObject)) {
+                    try {
+                        if (!previewMode) {
+                            EditorUtility.DisplayProgressBar("Rename", gameObject.name, i / (float)objects.Length);
+                        }
+                        
+                        _workBuilder1.Clear();
+                        _workBuilder2.Clear();
+                        _workBuilder1.Append(gameObject.name);
+                        settings.Modify(_workBuilder1, _workBuilder2, i);
+                        if (previewMode) {
+                            _previewInfos.Add(new PreviewInfo {
+                                oldText = gameObject.name,
+                                newText = _workBuilder1.ToString()
+                            });
+                        }
+                        else {
+                            gameObject.name = _workBuilder1.ToString();
+                        }
+                    }
+                    catch (Exception exception) {
+                        Debug.LogError($"Rename failed. [{gameObject.name}]");
+                        Debug.LogException(exception);
+                    }
+                }
+                // ProjectAssetの変換
+                else if (obj != null) {
+                    var path = AssetDatabase.GetAssetPath(obj);
+                    var fileName = Path.GetFileNameWithoutExtension(path);
+                    var extension = Path.GetExtension(path);
+                    try {
+                        if (!previewMode) {
+                            EditorUtility.DisplayProgressBar("Rename", path, i / (float)objects.Length);
+                        }
+
+                        _workBuilder1.Clear();
+                        _workBuilder2.Clear();
+                        _workBuilder1.Append(fileName);
+                        _workBuilder2.Append(extension);
+                        settings.Modify(_workBuilder1, _workBuilder2, i);
+                        if (previewMode) {
+                            _previewInfos.Add(new PreviewInfo {
+                                oldText = $"{fileName}{extension}",
+                                newText = $"{_workBuilder1}{_workBuilder2}"
+                            });
+                        }
+                        else {
+                            var newFileName = _workBuilder1.ToString();
+                            var newExtension = _workBuilder2.ToString();
+                            RenameAsset(path, newFileName, newExtension);
+                        
+                            // Asset側の名前も更新
+                            obj.name = newFileName;
+                            EditorUtility.SetDirty(obj);
+                        }
+                    }
+                    catch (Exception exception) {
+                        Debug.LogError($"Rename failed. [{fileName}]");
+                        Debug.LogException(exception);
+                    }
+                }
+            }
+
+            if (!previewMode) {
+                EditorUtility.ClearProgressBar();
+            }
+        }
+
+        /// <summary>
         /// アセットのリネーム処理
         /// </summary>
         /// <param name="basePath">元ファイルのパス</param>
         /// <param name="newFileName">変換後のファイル名</param>
-        private void RenameAsset(string basePath, string newFileName) {
+        /// <param name="newExtension">変換後の拡張子</param>
+        private void RenameAsset(string basePath, string newFileName, string newExtension) {
             var isDirectory = Directory.Exists(basePath);
             if (isDirectory) {
                 var directoryName = Directory.GetParent(basePath)?.FullName ?? "";
                 
                 // DirectoryのRename
-                _workBuilder.Clear();
-                _workBuilder.Append(directoryName);
-                _workBuilder.Append(Path.DirectorySeparatorChar);
-                _workBuilder.Append(newFileName);
-                Directory.Move(basePath, _workBuilder.ToString());
+                _workBuilder1.Clear();
+                _workBuilder1.Append(directoryName);
+                _workBuilder1.Append(Path.DirectorySeparatorChar);
+                _workBuilder1.Append(newFileName);
+                Directory.Move(basePath, _workBuilder1.ToString());
             }
             else {
                 var directoryName = Path.GetDirectoryName(basePath);
-                var extension = Path.GetExtension(basePath);
 
                 // FileのRename
-                _workBuilder.Clear();
-                _workBuilder.Append(directoryName);
-                _workBuilder.Append(Path.DirectorySeparatorChar);
-                _workBuilder.Append(newFileName);
-                _workBuilder.Append(extension);
-                File.Move(basePath, _workBuilder.ToString());
+                _workBuilder1.Clear();
+                _workBuilder1.Append(directoryName);
+                _workBuilder1.Append(Path.DirectorySeparatorChar);
+                _workBuilder1.Append(newFileName);
+                _workBuilder1.Append(newExtension);
+                File.Move(basePath, _workBuilder1.ToString());
             }
 
             // MetaのRename
-            _workBuilder.Append(".meta");
-            File.Move(basePath + ".meta", _workBuilder.ToString());
+            _workBuilder1.Append(".meta");
+            File.Move(basePath + ".meta", _workBuilder1.ToString());
         }
     }
 }

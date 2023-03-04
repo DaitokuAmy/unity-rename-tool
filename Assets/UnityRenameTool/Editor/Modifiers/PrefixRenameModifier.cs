@@ -18,7 +18,7 @@ namespace UnityRenameTool.Editor {
         /// <summary>
         /// 編集処理
         /// </summary>
-        void IRenameModifier.Modify(StringBuilder fileName, int index) {
+        void IRenameModifier.Modify(StringBuilder fileName, StringBuilder extension, int index) {
             fileName.Insert(0, prefix);
         }
     }

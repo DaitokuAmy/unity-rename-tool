@@ -26,7 +26,7 @@ namespace UnityRenameTool.Editor {
         /// <summary>
         /// 編集処理
         /// </summary>
-        void IRenameModifier.Modify(StringBuilder fileName, int index) {
+        void IRenameModifier.Modify(StringBuilder fileName, StringBuilder extension, int index) {
             var lowerCase = textCase == TextCase.Lower;
             for (var i = 0; i < fileName.Length; i++) {
                 var c = fileName[i];

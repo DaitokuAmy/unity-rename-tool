@@ -14,7 +14,7 @@ namespace UnityRenameTool.Editor {
         public BaseNameRenameModifier baseName;
         [Tooltip("大文字小文字設定"), RenameModifier("[case:Upper]hoge -> HOGE, [case:Lower]HOGE -> hoge")]
         public UpperLowerCaseRenameModifier upperLowerCase;
-        [Tooltip("Replace設定"), RenameModifier]
+        [Tooltip("置き換え設定"), RenameModifier]
         public ReplaceRenameModifier replace;
         [Tooltip("番号設定"), RenameModifier("[format:_{0:000}]hoge -> hoge_001")]
         public NumberingRenameModifier numbering;
@@ -22,6 +22,8 @@ namespace UnityRenameTool.Editor {
         public PrefixRenameModifier prefix;
         [Tooltip("Suffix編集用設定"), RenameModifier("[suffix:_normal]hoge -> hoge_normal")]
         public SuffixRenameModifier suffix;
+        [Tooltip("拡張子置き換え設定"), RenameModifier]
+        public ReplaceExtensionRenameModifier replaceExtension;
 
         private IRenameModifier[] _modifiers;
         private IRenameModifier[] Modifilers {
@@ -35,6 +37,7 @@ namespace UnityRenameTool.Editor {
                         numbering,
                         prefix,
                         suffix,
+                        replaceExtension,
                     };
                 }
 
@@ -46,8 +49,9 @@ namespace UnityRenameTool.Editor {
         /// 編集処理
         /// </summary>
         /// <param name="fileName">編集対象のファイル名</param>
+        /// <param name="extension">編集対象の拡張子</param>
         /// <param name="index">置き換えファイル名のIndex</param>
-        public void Modify(StringBuilder fileName, int index) {
+        public void Modify(StringBuilder fileName, StringBuilder extension, int index) {
             var modifiers = Modifilers;
             for (var i = 0; i < modifiers.Length; i++) {
                 var modifier = modifiers[i];
@@ -55,7 +59,7 @@ namespace UnityRenameTool.Editor {
                     continue;
                 }
 
-                modifier.Modify(fileName, index);
+                modifier.Modify(fileName, extension, index);
             }
         }
     }

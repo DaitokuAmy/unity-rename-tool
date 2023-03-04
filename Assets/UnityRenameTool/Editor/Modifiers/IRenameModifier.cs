@@ -14,7 +14,8 @@ namespace UnityRenameTool.Editor {
         /// 編集処理
         /// </summary>
         /// <param name="fileName">編集対象のファイル名</param>
+        /// <param name="extension">編集対象の拡張子</param>
         /// <param name="index">置き換えファイル名のIndex</param>
-        public void Modify(StringBuilder fileName, int index);
+        public void Modify(StringBuilder fileName, StringBuilder extension, int index);
     }
 }
