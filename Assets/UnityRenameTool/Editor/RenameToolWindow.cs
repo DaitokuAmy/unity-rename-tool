@@ -56,11 +56,15 @@ namespace UnityRenameTool.Editor {
             }
             
             // PreviewWindow描画
+            EditorGUILayout.LabelField("Preview", EditorStyles.boldLabel);
             using (var scope = new EditorGUILayout.ScrollViewScope(_previewScroll, "Box", GUILayout.Height(PreviewHeight))) {
+                var prevLabelWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = position.width * 0.5f - 20;
                 for (var i = 0; i < _previewInfos.Count; i++) {
                     var info = _previewInfos[i];
                     EditorGUILayout.LabelField(info.oldText, info.newText);
                 }
+                EditorGUIUtility.labelWidth = prevLabelWidth;
                 _previewScroll = scope.scrollPosition;
             }
 
