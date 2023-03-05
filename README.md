@@ -9,15 +9,15 @@
 1. Window > Package ManagerからPackage Managerを開く
 2. 「+」ボタン > Add package from git URL
 3. 以下を入力してインストール
-   * https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Assets/UnityRenameTool
+   * https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool
    ![image](https://user-images.githubusercontent.com/6957962/209446846-c9b35922-d8cb-4ba3-961b-52a81515c808.png)
 あるいはPackages/manifest.jsonを開き、dependenciesブロックに以下を追記します。
 ```json
 {
     "dependencies": {
-        "com.daitokuamy.unityrenametool": "https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Assets/UnityRenameTool"
+        "com.daitokuamy.unityrenametool": "https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool"
     }
 }
 ```
 バージョンを指定したい場合には以下のように記述します。  
-https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Assets/UnityRenameTool#1.0.0
+https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool#1.0.0
