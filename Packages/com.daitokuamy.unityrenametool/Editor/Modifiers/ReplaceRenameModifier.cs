@@ -21,6 +21,10 @@ namespace UnityRenameTool.Editor {
         /// 編集処理
         /// </summary>
         void IRenameModifier.Modify(StringBuilder fileName, StringBuilder extension, int index) {
+            if (string.IsNullOrEmpty(oldText)) {
+                return;
+            }
+
             fileName.Replace(oldText, newText);
         }
     }
