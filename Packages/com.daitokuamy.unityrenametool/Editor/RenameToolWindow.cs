@@ -123,6 +123,7 @@ namespace UnityRenameTool.Editor {
                         }
                         else {
                             gameObject.name = _workBuilder1.ToString();
+                            EditorUtility.SetDirty(gameObject);
                         }
                     }
                     catch (Exception exception) {
