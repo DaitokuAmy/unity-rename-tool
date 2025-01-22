@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -99,7 +100,10 @@ namespace UnityRenameTool.Editor {
                 _previewInfos.Clear();
             }
             
-            var objects = Selection.objects;
+            var objects = Selection.objects
+                .OrderByDescending(x => AssetDatabase.GetAssetPath(x).Split("/").Length)
+                .ThenBy(AssetDatabase.GetAssetPath)
+                .ToArray();
             for (var i = 0; i < objects.Length; i++) {
                 var obj = objects[i];
                 var gameObject = obj as GameObject;
@@ -181,6 +185,12 @@ namespace UnityRenameTool.Editor {
         /// <param name="newFileName">変換後のファイル名</param>
         /// <param name="newExtension">変換後の拡張子</param>
         private void RenameAsset(string basePath, string newFileName, string newExtension) {
+            var oldFileName = Path.GetFileNameWithoutExtension(basePath);
+            var oldExtension = Path.GetExtension(basePath);
+            if (oldFileName == newFileName && oldExtension == newExtension) {
+                return;
+            }
+            
             var isDirectory = Directory.Exists(basePath);
             if (isDirectory) {
                 var directoryName = Directory.GetParent(basePath)?.FullName ?? "";
